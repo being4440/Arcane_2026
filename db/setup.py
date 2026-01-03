@@ -173,6 +173,7 @@ def main():
     # Ensure db_params point to the target database
     db_params = {"user": params.get("user"), "password": params.get("password"), "host": params.get("host"), "port": params.get("port"), "dbname": target_db}
     run_sql_on_target(db_params, CREATE_TABLES_SQL)
+    print("ok connected")
 
 
 if __name__ == "__main__":
