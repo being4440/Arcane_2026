@@ -42,6 +42,7 @@ def login(username, role_type):
 def test_create_materials(seller_token):
     print("\n--- Creating 2 New Materials ---")
     headers = {"Authorization": f"Bearer {seller_token}"}
+    created_ids = []
     
     for i in range(2):
         payload = {
@@ -55,29 +56,21 @@ def test_create_materials(seller_token):
         }
         resp = requests.post(f"{BASE_URL}/materials/", json=payload, headers=headers)
         if resp.status_code == 200:
-            print(f"✅ Material Created: ID {resp.json().get('material_id')}")
+            mid = resp.json().get('material_id')
+            print(f"✅ Material Created: ID {mid}")
+            created_ids.append(mid)
         else:
             print(f"❌ Creation Failed: {resp.text}")
+            
+    return created_ids
 
-def test_feedback_and_reports(seller_token, buyer_token):
-    print("\n--- generating Feedback & Reports ---")
+def test_feedback_and_reports(seller_token, buyer_token, material_id):
+    print(f"\n--- generating Feedback & Reports (Mat {material_id}) ---")
     
-    # We need a completed request for feedback.
-    # Logic: Buyer creates request -> Seller accepts -> Seller completes -> Buyer gives feedback
-    
-    # 1. Create a quick flow to ensure we have a valid target
-    # First, list materials to request
     headers_buyer = {"Authorization": f"Bearer {buyer_token}"}
     headers_seller = {"Authorization": f"Bearer {seller_token}"}
     
-    m_resp = requests.get(f"{BASE_URL}/materials/", params={"limit": 5})
-    materials = m_resp.json()
-    
-    if not materials:
-        print("Skipping Feedback/Report: No materials found")
-        return
-
-    target_mat_id = materials[0]['material_id']
+    target_mat_id = material_id
     
     # Buyer Requests
     req_payload = {"requested_quantity": 1, "message": "For testing feedback"}
@@ -88,8 +81,17 @@ def test_feedback_and_reports(seller_token, buyer_token):
         print(f"  Created Request {req_id} for setup")
         
         # Seller Accepts & Completes
-        requests.put(f"{BASE_URL}/requests/{req_id}/status", json={"status": "accepted"}, headers=headers_seller)
-        requests.put(f"{BASE_URL}/requests/{req_id}/status", json={"status": "completed"}, headers=headers_seller)
+        # 1. Accept
+        s1 = requests.put(f"{BASE_URL}/requests/{req_id}/status", json={"status": "accepted"}, headers=headers_seller)
+        if s1.status_code != 200:
+             print(f"  Failed to accept: {s1.text}")
+             return
+
+        # 2. Complete
+        s2 = requests.put(f"{BASE_URL}/requests/{req_id}/status", json={"status": "completed"}, headers=headers_seller)
+        if s2.status_code != 200:
+             print(f"  Failed to complete: {s2.text}")
+             return
         
         # 1. SUBMIT FEEDBACK (Buyer)
         fb_payload = {"rating": 5, "comment": "Test Feedback for script"}
@@ -126,13 +128,15 @@ async def main():
     buyer_token = login(buyer_email, "buyer")
     
     if seller_token and buyer_token:
-        test_create_materials(seller_token)
-        # Run twice to ensure min 2 rows as requested (loop inside or call twice)
-        # Note: function already loops 2 times for materials.
+        # Create materials first
+        created_mats = test_create_materials(seller_token)
         
-        # For feedback, run logic twice
-        test_feedback_and_reports(seller_token, buyer_token)
-        test_feedback_and_reports(seller_token, buyer_token)
+        if len(created_mats) >= 2:
+            # Use the created materials for the feedback loop
+            test_feedback_and_reports(seller_token, buyer_token, created_mats[0])
+            test_feedback_and_reports(seller_token, buyer_token, created_mats[1])
+        else:
+            print("Not enough materials created to test feedback loops")
 
 if __name__ == "__main__":
     if hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
