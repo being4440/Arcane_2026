@@ -8,12 +8,16 @@ class RequestCreate(BaseModel):
     requested_quantity: Optional[Decimal] = None
     message: Optional[str] = None
 
+class RequestUpdateStatus(BaseModel):
+    status: str
+
 class RequestResponse(BaseModel):
     request_id: int
     material_id: int
     buyer_id: int
     requested_quantity: Optional[Decimal]
     message: Optional[str]
+    status: str
     created_at: datetime
     
     class Config:

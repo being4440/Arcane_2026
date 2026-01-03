@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
-from routes import auth, material, request, map, admin
+from routes import auth, material, request, map, admin, feedback, report, analytics
 
 def create_application() -> FastAPI:
     app = FastAPI(title=settings.PROJECT_NAME)
@@ -22,6 +22,9 @@ def create_application() -> FastAPI:
     app.include_router(request.router, prefix=f"{settings.API_V1_STR}", tags=["interactions"])
     app.include_router(map.router, prefix=f"{settings.API_V1_STR}/map", tags=["map"])
     app.include_router(admin.router, prefix=f"{settings.API_V1_STR}/admin", tags=["admin"])
+    app.include_router(feedback.router, prefix=f"{settings.API_V1_STR}/interactions", tags=["feedback"])
+    app.include_router(report.router, prefix=f"{settings.API_V1_STR}/interactions", tags=["reports"])
+    app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["analytics"])
     
     return app
 

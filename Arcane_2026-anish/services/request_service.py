@@ -66,3 +66,26 @@ async def mark_transferred(db: AsyncSession, material_id: int, org_id: int):
     await db.commit()
     await db.refresh(material)
     return material
+
+async def update_request_status(db: AsyncSession, request_id: int, org_id: int, status_update: str):
+    from models.material import Material
+    stmt = (
+        select(Request)
+        .join(Material)
+        .where(Request.request_id == request_id)
+        .where(Material.org_id == org_id)
+    )
+    result = await db.execute(stmt)
+    request = result.scalars().first()
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found or access denied")
+        
+    if status_update not in ["accepted", "rejected", "completed"]:
+         raise HTTPException(status_code=400, detail="Invalid status")
+         
+    request.status = status_update
+    db.add(request)
+    await db.commit()
+    await db.refresh(request)
+    return request

@@ -12,6 +12,7 @@ class Request(Base):
     requested_quantity = Column(DECIMAL(10, 2))
     message = Column(Text)
     created_at = Column(DateTime, server_default=func.now())
+    status = Column(String, default="pending")
 
     __table_args__ = (
         UniqueConstraint('material_id', 'buyer_id', name='unique_request_per_buyer_material'),
@@ -20,3 +21,5 @@ class Request(Base):
     # Relationships
     material = relationship("Material", back_populates="requests")
     buyer = relationship("Buyer", back_populates="requests")
+    feedback = relationship("RequestFeedback", back_populates="request", uselist=False, cascade="all, delete-orphan")
+    reports = relationship("SellerReport", back_populates="request")

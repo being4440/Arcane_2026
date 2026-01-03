@@ -155,7 +155,30 @@ CREATE TABLE IF NOT EXISTS request (
     requested_quantity DECIMAL(10,2),
     message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'pending',
     UNIQUE (material_id, buyer_id)
+);
+
+CREATE TABLE IF NOT EXISTS request_feedback (
+    feedback_id SERIAL PRIMARY KEY,
+    request_id INT NOT NULL REFERENCES request(request_id) ON DELETE CASCADE,
+    buyer_id INT NOT NULL REFERENCES buyer(buyer_id) ON DELETE CASCADE,
+    org_id INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (request_id)
+);
+
+CREATE TABLE IF NOT EXISTS seller_report (
+    report_id SERIAL PRIMARY KEY,
+    request_id INT REFERENCES request(request_id) ON DELETE SET NULL,
+    buyer_id INT NOT NULL REFERENCES buyer(buyer_id) ON DELETE CASCADE,
+    org_id INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
+    reason VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """
 

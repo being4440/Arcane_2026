@@ -85,3 +85,22 @@ async def get_activity_stats(db: AsyncSession):
         "requests_per_material": [],
         "conversion_ratio": round(ratio, 2)
     }
+
+async def get_seller_rating(db: AsyncSession, org_id: int):
+    from models.feedback import RequestFeedback
+    from sqlalchemy import func
+    
+    stmt = (
+        select(
+            func.count(RequestFeedback.feedback_id).label("total_reviews"),
+            func.avg(RequestFeedback.rating).label("avg_rating")
+        )
+        .where(RequestFeedback.org_id == org_id)
+    )
+    result = await db.execute(stmt)
+    row = result.first()
+    
+    total = row.total_reviews if row else 0
+    avg = round(row.avg_rating, 2) if row and row.avg_rating else 0.0
+    
+    return {"org_id": org_id, "avg_rating": avg, "total_reviews": total}
