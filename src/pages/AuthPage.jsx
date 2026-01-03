@@ -1,0 +1,247 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Building2, ChevronLeft, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+
+const AuthPage = ({ onLogin, onCancel }) => {
+  const { toast } = useToast();
+  const [role, setRole] = useState(null); // 'buyer' | 'seller'
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  
+  // Buyer State
+  const [buyerData, setBuyerData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  // Seller State
+  const [sellerData, setSellerData] = useState({
+    orgName: '',
+    orgType: 'Contractor',
+    industryType: 'Construction',
+    officialEmail: '',
+    contactNumber: '',
+    address: '',
+    city: '',
+    regNumber: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  // Login State
+  const [loginData, setLoginData] = useState({
+    identifier: '',
+    password: ''
+  });
+
+  const handleBuyerSubmit = (e) => {
+    e.preventDefault();
+    if (authMode === 'register') {
+        if (!buyerData.name || !buyerData.email || !buyerData.password) {
+            toast({ title: "Error", description: "Please fill all fields", variant: "destructive" });
+            return;
+        }
+        toast({ title: "Account Created", description: "Welcome to UpCycle Connect!" });
+        onLogin({ role: 'buyer', ...buyerData });
+    } else {
+        handleLoginSubmit(e);
+    }
+  };
+
+  const handleSellerSubmit = (e) => {
+    e.preventDefault();
+    if (authMode === 'register') {
+        if (sellerData.password !== sellerData.confirmPassword) {
+            toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
+            return;
+        }
+        if (!sellerData.orgName || !sellerData.officialEmail) {
+            toast({ title: "Error", description: "Please fill required fields", variant: "destructive" });
+            return;
+        }
+        toast({ title: "Account Created", description: "Organisation registered successfully!" });
+        onLogin({ role: 'seller', organisationName: sellerData.orgName, ...sellerData });
+    } else {
+        handleLoginSubmit(e);
+    }
+  };
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    if (!loginData.identifier || !loginData.password) {
+        toast({ title: "Error", description: "Please enter credentials", variant: "destructive" });
+        return;
+    }
+    // Simulated Login
+    toast({ title: "Welcome Back", description: "Logged in successfully" });
+    onLogin({ 
+        role: role, 
+        name: role === 'buyer' ? 'John Doe' : undefined,
+        organisationName: role === 'seller' ? 'Acme Construction' : undefined,
+        city: 'New Delhi',
+        ...loginData 
+    });
+  };
+
+  // Input Render Helpers
+  const InputField = ({ label, type = "text", value, onChange, placeholder, required = true }) => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-400 mb-1.5">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-[#0F1A17] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#3FA37C] transition-colors"
+        required={required}
+      />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#0F1A17] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-[#1E2A26] w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden border border-gray-800 flex flex-col md:flex-row min-h-[600px]"
+      >
+        {/* Left Side - Info/Back */}
+        <div className="md:w-1/3 bg-[#0F1A17] p-8 flex flex-col justify-between border-r border-gray-800">
+          <div>
+            <button 
+              onClick={role ? () => setRole(null) : onCancel}
+              className="flex items-center text-gray-400 hover:text-white transition-colors mb-8"
+            >
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              {role ? 'Back to Role' : 'Back to Home'}
+            </button>
+            <h2 className="text-2xl font-bold text-white mb-2">
+                {role ? (role === 'buyer' ? 'Buyer Access' : 'Seller Portal') : 'Get Started'}
+            </h2>
+            <p className="text-gray-400 text-sm">
+                {!role ? 'Select your role to continue to the platform.' : 
+                 role === 'buyer' ? 'Find surplus materials near you.' : 'List surplus materials and recover value.'}
+            </p>
+          </div>
+          
+          <div className="mt-8">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 rounded-full bg-[#3FA37C]" />
+                <span className="text-xs text-gray-400">Secure Authentication</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#60A5FA]" />
+                <span className="text-xs text-gray-400">Verified Profiles</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Forms */}
+        <div className="md:w-2/3 p-8 overflow-y-auto max-h-[800px]">
+            {!role ? (
+                <div className="h-full flex flex-col justify-center gap-6">
+                    <button 
+                        onClick={() => setRole('buyer')}
+                        className="group flex items-center p-6 bg-[#0F1A17] rounded-xl border border-gray-700 hover:border-[#60A5FA] transition-all hover:bg-[#0F1A17]/80"
+                    >
+                        <div className="w-14 h-14 bg-[#60A5FA]/10 rounded-lg flex items-center justify-center mr-6 group-hover:scale-110 transition-transform">
+                            <User className="w-7 h-7 text-[#60A5FA]" />
+                        </div>
+                        <div className="text-left flex-1">
+                            <h3 className="text-xl font-bold text-white mb-1">I'm a Buyer</h3>
+                            <p className="text-gray-400 text-sm">Browse and request materials</p>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </button>
+
+                    <button 
+                        onClick={() => setRole('seller')}
+                        className="group flex items-center p-6 bg-[#0F1A17] rounded-xl border border-gray-700 hover:border-[#3FA37C] transition-all hover:bg-[#0F1A17]/80"
+                    >
+                        <div className="w-14 h-14 bg-[#3FA37C]/10 rounded-lg flex items-center justify-center mr-6 group-hover:scale-110 transition-transform">
+                            <Building2 className="w-7 h-7 text-[#3FA37C]" />
+                        </div>
+                        <div className="text-left flex-1">
+                            <h3 className="text-xl font-bold text-white mb-1">I'm a Seller</h3>
+                            <p className="text-gray-400 text-sm">List organization & surplus inventory</p>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </button>
+                </div>
+            ) : (
+                <div className="h-full">
+                    {/* Toggle Auth Mode */}
+                    <div className="flex bg-[#0F1A17] p-1 rounded-lg mb-8 w-fit mx-auto">
+                        <button
+                            onClick={() => setAuthMode('login')}
+                            className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${authMode === 'login' ? 'bg-[#1E2A26] text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            Login
+                        </button>
+                        <button
+                            onClick={() => setAuthMode('register')}
+                            className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${authMode === 'register' ? 'bg-[#1E2A26] text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            Register
+                        </button>
+                    </div>
+
+                    <form onSubmit={role === 'buyer' ? handleBuyerSubmit : handleSellerSubmit} className="space-y-4">
+                        {authMode === 'login' ? (
+                            <>
+                                <InputField 
+                                    label={role === 'seller' ? "Organisation ID / Email" : "Email Address"} 
+                                    value={loginData.identifier}
+                                    onChange={(v) => setLoginData({...loginData, identifier: v})}
+                                    placeholder="Enter your ID"
+                                />
+                                <InputField 
+                                    label="Password" 
+                                    type="password"
+                                    value={loginData.password}
+                                    onChange={(v) => setLoginData({...loginData, password: v})}
+                                    placeholder="Enter your password"
+                                />
+                            </>
+                        ) : (
+                            role === 'buyer' ? (
+                                <>
+                                    <InputField label="Full Name" value={buyerData.name} onChange={(v) => setBuyerData({...buyerData, name: v})} placeholder="John Doe" />
+                                    <InputField label="Email Address" type="email" value={buyerData.email} onChange={(v) => setBuyerData({...buyerData, email: v})} placeholder="john@example.com" />
+                                    <InputField label="Password" type="password" value={buyerData.password} onChange={(v) => setBuyerData({...buyerData, password: v})} placeholder="Create a password" />
+                                </>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-2">
+                                        <InputField label="Organisation Name" value={sellerData.orgName} onChange={(v) => setSellerData({...sellerData, orgName: v})} placeholder="Acme Corp" />
+                                    </div>
+                                    <InputField label="Org Type" value={sellerData.orgType} onChange={(v) => setSellerData({...sellerData, orgType: v})} placeholder="Contractor" />
+                                    <InputField label="Industry Type" value={sellerData.industryType} onChange={(v) => setSellerData({...sellerData, industryType: v})} placeholder="Construction" />
+                                    <InputField label="Official Email" type="email" value={sellerData.officialEmail} onChange={(v) => setSellerData({...sellerData, officialEmail: v})} placeholder="admin@acme.com" />
+                                    <InputField label="Contact Number" value={sellerData.contactNumber} onChange={(v) => setSellerData({...sellerData, contactNumber: v})} placeholder="+91 9876543210" />
+                                    <div className="md:col-span-2">
+                                        <InputField label="Address" value={sellerData.address} onChange={(v) => setSellerData({...sellerData, address: v})} placeholder="123 Builder Lane" />
+                                    </div>
+                                    <InputField label="City" value={sellerData.city} onChange={(v) => setSellerData({...sellerData, city: v})} placeholder="City" />
+                                    <InputField label="Registration/ID Number" value={sellerData.regNumber} onChange={(v) => setSellerData({...sellerData, regNumber: v})} placeholder="GSTIN or Reg No." />
+                                    <InputField label="Password" type="password" value={sellerData.password} onChange={(v) => setSellerData({...sellerData, password: v})} placeholder="Create password" />
+                                    <InputField label="Confirm Password" type="password" value={sellerData.confirmPassword} onChange={(v) => setSellerData({...sellerData, confirmPassword: v})} placeholder="Confirm password" />
+                                </div>
+                            )
+                        )}
+
+                        <Button type="submit" className="w-full bg-[#3FA37C] hover:bg-[#358F6A] text-white py-6 mt-6 text-lg rounded-xl">
+                            {authMode === 'login' ? 'Login' : 'Create Account'}
+                        </Button>
+                    </form>
+                </div>
+            )}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default AuthPage;
