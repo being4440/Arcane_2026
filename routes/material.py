@@ -1,58 +1,36 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
+from database import get_db
+from pydantic import BaseModel
+from models.material import MaterialModel
 
-from database import SessionLocal
-from models.material import Material
-from schemas.material import MaterialCreate, MaterialOut
+# --- Pydantic Schemas ---
+class MaterialBase(BaseModel):
+    name: str
+    category: str
+    quantity: int
+    organization_id: int
 
-router = APIRouter(prefix="/materials", tags=["Materials"])
+class MaterialCreate(MaterialBase):
+    pass
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+class MaterialOut(MaterialBase):
+    id: int
+    class Config:
+        from_attributes = True
 
-# READ
-@router.get("/", response_model=list[MaterialOut])
-def list_materials(db: Session = Depends(get_db)):
-    return db.query(Material).all()
+# --- Routes ---
+router = APIRouter(prefix="/materials", tags=["materials"])
 
-# CREATE
 @router.post("/", response_model=MaterialOut)
 def create_material(material: MaterialCreate, db: Session = Depends(get_db)):
-    db_material = Material(**material.dict())
-    db.add(db_material)
+    new_material = MaterialModel(**material.dict())
+    db.add(new_material)
     db.commit()
-    db.refresh(db_material)
-    return db_material
+    db.refresh(new_material)
+    return new_material
 
-# UPDATE  ← THIS IS WHERE YOUR FUNCTION GOES
-@router.put("/{material_id}", response_model=MaterialOut)
-def update_material(
-    material_id: int,
-    material: MaterialCreate,
-    db: Session = Depends(get_db)
-):
-    db_material = db.query(Material).filter(Material.material_id == material_id).first()
-    if not db_material:
-        raise HTTPException(status_code=404, detail="Material not found")
-
-    for key, value in material.dict().items():
-        setattr(db_material, key, value)
-
-    db.commit()
-    db.refresh(db_material)
-    return db_material
-
-# DELETE
-@router.delete("/{material_id}")
-def delete_material(material_id: int, db: Session = Depends(get_db)):
-    db_material = db.query(Material).filter(Material.material_id == material_id).first()
-    if not db_material:
-        raise HTTPException(status_code=404, detail="Material not found")
-
-    db.delete(db_material)
-    db.commit()
-    return {"message": "Material deleted"}
+@router.get("/", response_model=List[MaterialOut])
+def get_materials(db: Session = Depends(get_db)):
+    return db.query(MaterialModel).all()
