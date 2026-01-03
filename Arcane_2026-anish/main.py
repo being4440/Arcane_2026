@@ -19,7 +19,7 @@ def create_application() -> FastAPI:
     # Register Routers
     app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
     app.include_router(material.router, prefix=f"{settings.API_V1_STR}/materials", tags=["materials"])
-    app.include_router(request.router, prefix=f"{settings.API_V1_STR}", tags=["interactions"])
+    app.include_router(request.router, prefix=f"{settings.API_V1_STR}/interactions", tags=["interactions"])
     app.include_router(map.router, prefix=f"{settings.API_V1_STR}/map", tags=["map"])
     app.include_router(admin.router, prefix=f"{settings.API_V1_STR}/admin", tags=["admin"])
     app.include_router(feedback.router, prefix=f"{settings.API_V1_STR}/interactions", tags=["feedback"])
