@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS organization (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     verification_status VARCHAR(20) DEFAULT 'pending',
+    is_blocked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     verified_at TIMESTAMP
 );
@@ -138,18 +139,6 @@ CREATE TABLE IF NOT EXISTS material_photo (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS request (
-    request_id SERIAL PRIMARY KEY,
-    material_id INT NOT NULL REFERENCES material(material_id),
-    buyer_id INT NOT NULL REFERENCES buyer(buyer_id),
-    requested_quantity DECIMAL(10,2),
-    message TEXT,
-    status VARCHAR(20) DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    approved_at TIMESTAMP,
-    completed_at TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS admin (
     admin_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -157,6 +146,16 @@ CREATE TABLE IF NOT EXISTS admin (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS request (
+    request_id SERIAL PRIMARY KEY,
+    material_id INT NOT NULL REFERENCES material(material_id) ON DELETE CASCADE,
+    buyer_id INT NOT NULL REFERENCES buyer(buyer_id) ON DELETE CASCADE,
+    requested_quantity DECIMAL(10,2),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (material_id, buyer_id)
 );
 """
 
