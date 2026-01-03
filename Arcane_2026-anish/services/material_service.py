@@ -1,5 +1,6 @@
 
 from typing import List, Optional
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -10,6 +11,14 @@ from models.location import Location
 from schemas.material import MaterialCreate, MaterialUpdate
 
 async def create_material(db: AsyncSession, material_in: MaterialCreate, org_id: int):
+    # Check if Organization is blocked
+    stmt = select(Organization).where(Organization.org_id == org_id)
+    res = await db.execute(stmt)
+    org = res.scalars().first()
+    
+    if not org or org.is_blocked:
+        raise HTTPException(status_code=403, detail="Organization is blocked or not found")
+
     db_obj = Material(
         org_id=org_id,
         title=material_in.title,

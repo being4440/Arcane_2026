@@ -1,5 +1,6 @@
 
 import math
+from fastapi import HTTPException
 from services import material_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +21,9 @@ async def get_nearby_materials(
     radius_km: float,
     category: str = None
 ):
+    if radius_km > 10:
+        raise HTTPException(status_code=400, detail="Radius cannot exceed 10km for privacy reasons")
+
     materials = await material_service.get_materials(db, category=category)
     
     nearby_results = []
