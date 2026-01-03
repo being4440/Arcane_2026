@@ -7,6 +7,7 @@ class Token(BaseModel):
     token_type: str
     role: str
     user_id: int
+    user_details: dict
 
 class TokenData(BaseModel):
     id: Optional[str] = None

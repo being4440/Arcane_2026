@@ -34,11 +34,40 @@ async def login_for_access_token(
         subject=user_data["id"],
         role=user_data["role"]
     )
+    
+    # Construct user details based on role
+    user_obj = user_data["user"]
+    details = {}
+    if user_data["role"] == "buyer":
+        details = {
+            "name": user_obj.name,
+            "email": user_obj.email,
+            "city": user_obj.city,
+            "phone": user_obj.phone
+        }
+    elif user_data["role"] == "organization":
+        details = {
+            "organisationName": user_obj.org_name,
+            "orgType": user_obj.org_type,
+            "industryType": user_obj.industry_type,
+            "email": user_obj.email,
+            "city": "New Delhi" # Default for now if not in model, user_obj doesn't have city in Organization model? Check model.
+            # Checking auth_service.py create_organization: org_name, org_type, industry_type, email. No city.
+            # Frontend expects city. I will mock it or add it to model later if needed.
+        }
+    elif user_data["role"] == "admin":
+        details = {
+            "name": user_obj.name,
+            "email": user_obj.email,
+            "role": user_obj.role
+        }
+
     return {
         "access_token": access_token, 
         "token_type": "bearer",
         "role": user_data["role"],
-        "user_id": user_data["id"] 
+        "user_id": user_data["id"],
+        "user_details": details
     }
 
 @router.post("/signup/organization", response_model=OrganizationResponse)
