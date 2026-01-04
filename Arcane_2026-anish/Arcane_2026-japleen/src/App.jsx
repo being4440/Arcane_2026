@@ -4,9 +4,11 @@ import LandingPage from '@/pages/LandingPage';
 import AuthPage from '@/pages/AuthPage';
 import SellerHome from '@/pages/SellerHome';
 import AddMaterial from '@/pages/AddMaterial';
+import SellerRequests from '@/pages/SellerRequests';
 import BuyerHome from '@/pages/BuyerHome';
 import MaterialDetail from '@/pages/MaterialDetail';
 import ReviewsPage from '@/pages/ReviewsPage';
+import Profile from '@/pages/Profile';
 import { Toaster } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
@@ -26,6 +28,8 @@ function App() {
   const [transactions, setTransactions] = useState([]);
   const [materialRequests, setMaterialRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [requestsRefreshKey, setRequestsRefreshKey] = useState(0);
+  const [orgPendingCount, setOrgPendingCount] = useState(0);
 
   // Initial Load
   useEffect(() => {
@@ -34,9 +38,20 @@ function App() {
     const storedRole = localStorage.getItem('role');
 
     if (token && storedUser && storedRole) {
-      setUser({ role: storedRole, ...JSON.parse(storedUser) });
-      if (storedRole === 'seller') setCurrentPage('seller-home');
+      const parsed = JSON.parse(storedUser);
+      setUser({ role: storedRole, ...parsed });
+      if (storedRole === 'seller' || storedRole === 'organization') setCurrentPage('seller-home');
       else if (storedRole === 'buyer') setCurrentPage('buyer-home');
+
+      // Fetch pending requests count for org (best-effort)
+      (async () => {
+        try {
+          const data = await api.getOrgRequests();
+          setOrgPendingCount(Array.isArray(data) ? data.length : 0);
+        } catch (e) {
+          // ignore; keep 0
+        }
+      })();
     }
   }, []);
 
@@ -78,7 +93,7 @@ function App() {
 
   const handleLogin = (userData) => {
     setUser(userData);
-    if (userData.role === 'seller') {
+    if (userData.role === 'seller' || userData.role === 'organization') {
       setCurrentPage('seller-home');
     } else {
       setCurrentPage('buyer-home');
@@ -121,15 +136,35 @@ function App() {
     setCurrentPage('material-detail');
   };
 
-  // KEEP MOCK HANDLERS FOR NOW (Transition incrementally)
-  const handleAddFeedback = (newFeedback) => {
-    const stagedComment = `[${newFeedback.stage || 'General'}] ${newFeedback.comment}`;
-    setFeedbacks([{
-      ...newFeedback,
-      comment: stagedComment,
-      id: feedbacks.length + 1,
-      date: new Date().toISOString().split('T')[0]
-    }, ...feedbacks]);
+  // Call backend to submit feedback for a request
+  const handleAddFeedback = async (feedbackData) => {
+    if (!feedbackData.requestId) {
+      toast({ title: "Error", description: "Request ID not found", variant: "destructive" });
+      return;
+    }
+    
+    try {
+      const resp = await api.createFeedback(feedbackData.requestId, {
+        rating: feedbackData.rating,
+        comment: feedbackData.comment
+      });
+      
+      const newFeedback = {
+        id: resp.feedback_id,
+        materialName: feedbackData.materialName,
+        buyerName: feedbackData.buyerName || 'Anonymous',
+        rating: resp.rating,
+        comment: resp.comment,
+        date: new Date(resp.created_at).toLocaleDateString(),
+        requestId: resp.request_id
+      };
+      
+      setFeedbacks([newFeedback, ...feedbacks]);
+      toast({ title: "Feedback Submitted", description: "Thank you for your feedback!" });
+    } catch (error) {
+      toast({ title: "Error", description: error.message || 'Failed to submit feedback', variant: "destructive" });
+      throw error;
+    }
   };
 
   const handleAddRequest = (requestData) => {
@@ -152,29 +187,53 @@ function App() {
     }, 1500);
   };
 
-  const handleCreateTransaction = (material, reqData) => {
-    // TODO: Integrate with backend request/transaction logic
-    const newTransaction = {
-      id: Date.now(),
-      materialId: material.id,
-      materialName: material.name,
-      sellerName: material.seller,
-      status: 'Pending',
-      date: new Date().toLocaleDateString(),
-      price: material.price || 0,
-      quantity: reqData.quantity
-    };
-    setTransactions([newTransaction, ...transactions]);
-    setTimeout(() => {
-      setTransactions(prev => prev.map(t => t.id === newTransaction.id ? { ...t, status: 'In Progress' } : t));
+  const handleCreateTransaction = async (material, reqData) => {
+    // Integrate with backend request API
+    try {
+      const payload = {
+        requested_quantity: parseFloat(reqData.quantity) || 0,
+        message: `${reqData.purpose || ''} ${reqData.timeframe || ''}`.trim()
+      };
+
+      const resp = await api.createRequest(material.id, payload);
+
+      // Map backend response to frontend transaction model for UI
+      const newTransaction = {
+        id: resp.request_id || Date.now(),
+        materialId: resp.material_id || material.id,
+        materialName: material.name,
+        sellerName: material.seller,
+        sellerId: material.orgId,
+        status: resp.status || 'Pending',
+        date: resp.created_at || new Date().toLocaleDateString(),
+        price: material.price || 0,
+        quantity: resp.requested_quantity || reqData.quantity
+      };
+
+      setTransactions(prev => [newTransaction, ...prev]);
+
+      // Optionally notify user
       setNotifications(prev => [{
         id: Date.now() + 2,
-        title: "Request Approved",
-        message: `Your request for ${material.name} has been approved by ${material.seller}.`,
-        type: 'success',
+        title: "Request Sent",
+        message: `Your request for ${material.name} has been submitted.`,
+        type: 'info',
         read: false
       }, ...prev]);
-    }, 5000);
+
+      // Refresh org pending count
+      try {
+        const orgReqs = await api.getOrgRequests();
+        setOrgPendingCount(Array.isArray(orgReqs) ? orgReqs.length : orgPendingCount);
+      } catch (e) {
+        // ignore
+      }
+
+      return resp;
+    } catch (error) {
+      toast({ title: "Error", description: error.message || 'Failed to create request', variant: 'destructive' });
+      throw error;
+    }
   };
 
   const handleMarkNotificationRead = (id) => {
@@ -189,6 +248,9 @@ function App() {
       : 0;
     return { count, average };
   };
+
+  // Compute available categories from materials
+  const availableCategories = ['All', ...new Set(materials.map(m => m.category || 'Others'))].sort();
 
   return (
     <>
@@ -215,20 +277,62 @@ function App() {
           />
         )}
 
-        {currentPage === 'seller-home' && user?.role === 'seller' && (
+        {currentPage === 'seller-home' && (user?.role === 'seller' || user?.role === 'organization') && (
           <SellerHome
             user={user}
             materials={materials.filter(m => m.orgId === user.user_id)}
             feedbacks={feedbacks.filter(f => f.sellerName === user.organisationName)}
+            pendingCount={orgPendingCount}
             onNavigate={setCurrentPage}
             onLogout={handleLogout}
           />
         )}
 
-        {currentPage === 'add-material' && user?.role === 'seller' && (
+        {currentPage === 'add-material' && (user?.role === 'seller' || user?.role === 'organization') && (
           <AddMaterial
             onCancel={() => setCurrentPage('seller-home')}
             onSubmit={handleAddMaterial}
+            existingCategories={availableCategories.filter(c => c !== 'All')}
+          />
+        )}
+
+        {currentPage === 'seller-requests' && (user?.role === 'seller' || user?.role === 'organization') && (
+          <SellerRequests
+            requests={transactions.filter(t => t.sellerName === user.organisationName && t.status === 'Pending')}
+            onNavigate={setCurrentPage}
+            onAccept={async (id) => {
+              try {
+                await api.updateRequestStatus(id, 'accepted');
+                setRequestsRefreshKey(k => k + 1);
+                // Refresh org pending count
+                try {
+                  const orgReqs = await api.getOrgRequests();
+                  setOrgPendingCount(Array.isArray(orgReqs) ? orgReqs.length : orgPendingCount);
+                } catch (e) {
+                  // ignore
+                }
+                toast({ title: "Request Accepted", description: "Buyer has been notified." });
+              } catch (e) {
+                toast({ title: "Error", description: e.message || 'Failed to accept request', variant: 'destructive' });
+              }
+            }}
+            onReject={async (id) => {
+              try {
+                await api.updateRequestStatus(id, 'rejected');
+                setRequestsRefreshKey(k => k + 1);
+                // Refresh org pending count
+                try {
+                  const orgReqs = await api.getOrgRequests();
+                  setOrgPendingCount(Array.isArray(orgReqs) ? orgReqs.length : orgPendingCount);
+                } catch (e) {
+                  // ignore
+                }
+                toast({ title: "Request Rejected", description: "Request has been declined." });
+              } catch (e) {
+                toast({ title: "Error", description: e.message || 'Failed to reject request', variant: 'destructive' });
+              }
+            }}
+            refreshKey={requestsRefreshKey}
           />
         )}
 
@@ -247,6 +351,10 @@ function App() {
             onViewMaterial={handleViewMaterial}
             getSellerStats={getSellerStats}
           />
+        )}
+
+        {currentPage === 'profile' && (
+          <Profile onNavigate={setCurrentPage} />
         )}
 
         {currentPage === 'material-detail' && selectedMaterial && (

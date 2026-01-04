@@ -40,7 +40,11 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error('Signup failed');
+        if (!response.ok) {
+            let err = { detail: 'Signup failed' };
+            try { err = await response.json(); } catch(e){}
+            throw new Error(err.detail || err.message || 'Signup failed');
+        }
         return response.json();
     },
 
@@ -50,13 +54,55 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error('Signup failed');
+        if (!response.ok) {
+            let err = { detail: 'Signup failed' };
+            try { err = await response.json(); } catch(e){}
+            throw new Error(err.detail || err.message || 'Signup failed');
+        }
+        return response.json();
+    },
+
+    // Profile
+    getProfile: async () => {
+        const response = await fetch(`${API_URL}/auth/me`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) {
+            let err = { detail: 'Failed to fetch profile' };
+            try { err = await response.json(); } catch(e){}
+            throw new Error(err.detail || err.message || 'Failed to fetch profile');
+        }
+        return response.json();
+    },
+
+    updateProfile: async (data) => {
+        const response = await fetch(`${API_URL}/auth/me`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            let err = { detail: 'Failed to update profile' };
+            try { err = await response.json(); } catch(e){}
+            throw new Error(err.detail || err.message || 'Failed to update profile');
+        }
         return response.json();
     },
 
     // Materials
-    getMaterials: async () => {
-        const response = await fetch(`${API_URL}/materials/`, {
+    getMaterials: async (params = {}) => {
+        const queryParams = new URLSearchParams();
+        if (params.category) queryParams.append('category', params.category);
+        if (params.city) queryParams.append('city', params.city);
+        if (params.q) queryParams.append('q', params.q);
+        if (params.industry) queryParams.append('industry', params.industry);
+        if (params.skip) queryParams.append('skip', params.skip);
+        if (params.limit) queryParams.append('limit', params.limit);
+        
+        const queryString = queryParams.toString();
+        const url = queryString ? `${API_URL}/materials/?${queryString}` : `${API_URL}/materials/`;
+        
+        const response = await fetch(url, {
             headers: getHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch materials');
@@ -101,6 +147,14 @@ export const api = {
         return response.json();
     },
 
+    getOrgRequests: async () => {
+        const response = await fetch(`${API_URL}/interactions/org/requests`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch organization requests');
+        return response.json();
+    },
+
     updateRequestStatus: async (requestId, status) => {
         const response = await fetch(`${API_URL}/interactions/requests/${requestId}/status`, {
             method: 'PUT',
@@ -127,6 +181,14 @@ export const api = {
             headers: getHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch feedback');
+        return response.json();
+    },
+
+    getOrgFeedbacks: async () => {
+        const response = await fetch(`${API_URL}/interactions/org/feedbacks`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch organization feedbacks');
         return response.json();
     }
 

@@ -18,3 +18,10 @@ class BuyerResponse(BuyerBase):
 
     class Config:
         from_attributes = True
+
+
+class BuyerUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    city: Optional[str] = None
+    phone: Optional[str] = None

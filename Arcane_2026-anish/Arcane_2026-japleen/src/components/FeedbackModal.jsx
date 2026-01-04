@@ -8,12 +8,16 @@ const FeedbackModal = ({ isOpen, onClose, onSubmit, sellerName, materialName, st
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ rating, comment });
-    setRating(0);
-    setComment('');
-    onClose();
+    try {
+      await onSubmit({ rating, comment });
+      setRating(0);
+      setComment('');
+      onClose();
+    } catch (err) {
+      // Error already shown by parent
+    }
   };
 
   if (!isOpen) return null;

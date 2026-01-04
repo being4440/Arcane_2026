@@ -10,7 +10,7 @@ const ReviewsPage = ({
   return <div className="min-h-screen bg-[#0F1A17]">
       <div className="bg-[#1E2A26] border-b border-gray-800 p-4 sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between">
-           <button onClick={() => onNavigate(user ? user.role === 'seller' ? 'seller-home' : 'buyer-home' : 'landing')} className="flex items-center text-gray-400 hover:text-white transition-colors">
+           <button onClick={() => onNavigate(user ? (user.role === 'seller' || user.role === 'organization') ? 'seller-home' : 'buyer-home' : 'landing')} className="flex items-center text-gray-400 hover:text-white transition-colors">
              <ArrowLeft className="w-5 h-5 mr-2" />
              Back
            </button>

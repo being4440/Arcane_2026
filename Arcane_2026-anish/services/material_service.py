@@ -27,7 +27,8 @@ async def create_material(db: AsyncSession, material_in: MaterialCreate, org_id:
         quantity_value=material_in.quantity_value,
         quantity_unit=material_in.quantity_unit,
         condition=material_in.condition,
-        availability_status="available"
+        availability_status="available",
+        available_quantity=material_in.quantity_value
     )
     db.add(db_obj)
     await db.commit()
@@ -54,6 +55,8 @@ async def get_materials(
     db: AsyncSession, 
     category: Optional[str] = None, 
     city: Optional[str] = None, 
+    q: Optional[str] = None,
+    industry: Optional[str] = None,
     skip: int = 0, 
     limit: int = 100
 ):
@@ -71,6 +74,12 @@ async def get_materials(
     
     if city:
         stmt = stmt.where(Location.city.ilike(f"%{city}%"))
+    
+    if q:
+        stmt = stmt.where(Material.title.ilike(f"%{q}%"))
+    
+    if industry:
+        stmt = stmt.where(Organization.industry_type.ilike(f"%{industry}%"))
         
     stmt = stmt.offset(skip).limit(limit)
     

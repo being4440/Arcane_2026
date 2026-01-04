@@ -23,11 +23,13 @@ async def create_new_material(
 async def read_materials(
     category: Optional[str] = None,
     city: Optional[str] = None,
+    q: Optional[str] = None,
+    industry: Optional[str] = None,
     skip: int = 0,
     limit: int = 100,
     db: AsyncSession = Depends(get_session)
 ):
-    materials = await material_service.get_materials(db, category, city, skip, limit)
+    materials = await material_service.get_materials(db, category, city, q, industry, skip, limit)
     
     results = []
     for m in materials:

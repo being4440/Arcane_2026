@@ -11,6 +11,7 @@ class Organization(Base):
     org_type = Column(String, nullable=False)
     industry_type = Column(String)
     email = Column(String, unique=True, nullable=False, index=True)
+    contact_number = Column(String, nullable=True)
     password_hash = Column(String, nullable=False)
     verification_status = Column(String, default="pending")
     is_blocked = Column(Boolean, default=False)

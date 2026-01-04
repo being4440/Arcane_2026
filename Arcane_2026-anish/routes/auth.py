@@ -11,6 +11,9 @@ from schemas.organization import OrganizationCreate, OrganizationResponse
 from schemas.buyer import BuyerCreate, BuyerResponse
 from schemas.admin import AdminCreate, AdminResponse
 from core import security, deps
+from schemas.buyer import BuyerUpdate
+from schemas.organization import OrganizationUpdate
+from schemas.auth import TokenData
 
 router = APIRouter()
 
@@ -93,3 +96,28 @@ async def signup_admin(
 ):
     user = await auth_service.create_admin(db, user_in)
     return user
+
+
+@router.get('/me')
+async def get_current_user(user = Depends(deps.get_current_active_user)):
+    # Returns the current authenticated user's object (ORM)
+    return user
+
+
+@router.put('/me')
+async def update_current_user(
+    update: dict,
+    token: TokenData = Depends(deps.get_current_user_token),
+    db: AsyncSession = Depends(get_session)
+):
+    # Delegate to service layer based on role
+    role = token.role
+    user_id = int(token.id)
+    if role == 'buyer':
+        user = await auth_service.update_buyer_profile(db, user_id, update)
+        return user
+    elif role == 'organization':
+        user = await auth_service.update_organization_profile(db, user_id, update)
+        return user
+    else:
+        raise HTTPException(status_code=400, detail='Profile update not supported for this role')

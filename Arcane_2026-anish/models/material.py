@@ -13,6 +13,7 @@ class Material(Base):
     description = Column(Text)
     quantity_value = Column(DECIMAL(10, 2))
     quantity_unit = Column(String)
+    available_quantity = Column(DECIMAL(10, 2), nullable=True)  # Tracks remaining available quantity for bulk materials
     condition = Column(String)
     availability_status = Column(String, default="available")
     created_at = Column(DateTime, server_default=func.now())

@@ -5,6 +5,20 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { api } from '@/lib/api';
 
+const InputField = ({ label, type = "text", value, onChange, placeholder, required = true }) => (
+    <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-400 mb-1.5">{label}</label>
+        <input
+            type={type}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className="w-full bg-[#0F1A17] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#3FA37C] transition-colors"
+            required={required}
+        />
+    </div>
+);
+
 const AuthPage = ({ onLogin, onCancel }) => {
     const { toast } = useToast();
     const [role, setRole] = useState(null); // 'buyer' | 'seller'
@@ -14,7 +28,9 @@ const AuthPage = ({ onLogin, onCancel }) => {
     const [buyerData, setBuyerData] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        phone: '',
+        city: ''
     });
 
     // Seller State
@@ -38,6 +54,7 @@ const AuthPage = ({ onLogin, onCancel }) => {
     });
 
     const handleBuyerSubmit = async (e) => {
+        console.log('AuthPage: handleBuyerSubmit called', { authMode, buyerData });
         e.preventDefault();
         if (authMode === 'register') {
             if (!buyerData.name || !buyerData.email || !buyerData.password) {
@@ -49,8 +66,8 @@ const AuthPage = ({ onLogin, onCancel }) => {
                 await api.signupBuyer({
                     name: buyerData.name,
                     email: buyerData.email,
-                    city: 'New Delhi', // Hardcoded or add input
-                    phone: '0000000000', // Hardcoded or add input
+                    city: buyerData.city || 'New Delhi',
+                    phone: buyerData.phone,
                     password: buyerData.password
                 });
 
@@ -58,10 +75,14 @@ const AuthPage = ({ onLogin, onCancel }) => {
                 const loginResp = await api.login(buyerData.email, buyerData.password);
                 localStorage.setItem('token', loginResp.access_token);
 
+                const userDataToStore = { ...loginResp.user_details, user_id: loginResp.user_id };
+                localStorage.setItem('user_details', JSON.stringify(userDataToStore));
+                localStorage.setItem('role', loginResp.role);
+
                 toast({ title: "Account Created", description: "Welcome to UpCycle Connect!" });
-                onLogin({ role: 'buyer', ...loginResp.user_details });
+                onLogin({ role: 'buyer', ...userDataToStore });
             } catch (error) {
-                toast({ title: "Registration Failed", description: error.message, variant: "destructive" });
+                toast({ title: "Registration Failed", description: error.message || 'Registration failed', variant: "destructive" });
             }
         } else {
             handleLoginSubmit(e);
@@ -69,6 +90,7 @@ const AuthPage = ({ onLogin, onCancel }) => {
     };
 
     const handleSellerSubmit = async (e) => {
+        console.log('AuthPage: handleSellerSubmit called', { authMode, sellerData });
         e.preventDefault();
         if (authMode === 'register') {
             if (sellerData.password !== sellerData.confirmPassword) {
@@ -85,7 +107,8 @@ const AuthPage = ({ onLogin, onCancel }) => {
                     org_name: sellerData.orgName,
                     org_type: sellerData.orgType,
                     industry_type: sellerData.industryType,
-                    email: sellerData.officialEmail,
+                        email: sellerData.officialEmail,
+                        contact_number: sellerData.contactNumber,
                     password: sellerData.password
                 });
 
@@ -93,10 +116,15 @@ const AuthPage = ({ onLogin, onCancel }) => {
                 const loginResp = await api.login(sellerData.officialEmail, sellerData.password);
                 localStorage.setItem('token', loginResp.access_token);
 
+                const userDataToStore = { ...loginResp.user_details, user_id: loginResp.user_id };
+                localStorage.setItem('user_details', JSON.stringify(userDataToStore));
+                localStorage.setItem('role', loginResp.role);
+
                 toast({ title: "Account Created", description: "Organisation registered successfully!" });
-                onLogin({ role: 'seller', ...loginResp.user_details });
+                onLogin({ role: 'seller', ...userDataToStore });
             } catch (error) {
-                toast({ title: "Registration Failed", description: error.message, variant: "destructive" });
+                // Show backend validation message if present
+                toast({ title: "Registration Failed", description: error.message || 'Registration failed', variant: "destructive" });
             }
 
         } else {
@@ -105,6 +133,7 @@ const AuthPage = ({ onLogin, onCancel }) => {
     };
 
     const handleLoginSubmit = async (e) => {
+        console.log('AuthPage: handleLoginSubmit called', { loginData });
         if (e) e.preventDefault(); // Handle cases where called from other handlers
         if (!loginData.identifier || !loginData.password) {
             toast({ title: "Error", description: "Please enter credentials", variant: "destructive" });
@@ -114,33 +143,25 @@ const AuthPage = ({ onLogin, onCancel }) => {
         try {
             const data = await api.login(loginData.identifier, loginData.password);
             localStorage.setItem('token', data.access_token);
-            localStorage.setItem('user_details', JSON.stringify(data.user_details)); // Persist details
+            // We need to persist user_id as well, or the whole login response, not just user_details
+            // Update: Persist just what we need or correct the structure.
+            // Let's store the full user object including ID in local storage for specific user_details key if App.jsx relies on it?
+            // App.jsx does: setUser({ role: storedRole, ...JSON.parse(storedUser) });
+            // So we should put user_id INSIDE user_details or merge them before storing.
+
+            const userDataToStore = { ...data.user_details, user_id: data.user_id };
+            localStorage.setItem('user_details', JSON.stringify(userDataToStore));
             localStorage.setItem('role', data.role);
 
             toast({ title: "Welcome Back", description: "Logged in successfully" });
             onLogin({
                 role: data.role,
-                ...data.user_details
+                ...userDataToStore
             });
         } catch (error) {
             toast({ title: "Login Failed", description: error.message, variant: "destructive" });
         }
     };
-
-    // Input Render Helpers
-    const InputField = ({ label, type = "text", value, onChange, placeholder, required = true }) => (
-        <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-400 mb-1.5">{label}</label>
-            <input
-                type={type}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                className="w-full bg-[#0F1A17] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#3FA37C] transition-colors"
-                required={required}
-            />
-        </div>
-    );
 
     return (
         <div className="min-h-screen bg-[#0F1A17] flex items-center justify-center p-4">
@@ -252,6 +273,8 @@ const AuthPage = ({ onLogin, onCancel }) => {
                                         <>
                                             <InputField label="Full Name" value={buyerData.name} onChange={(v) => setBuyerData({ ...buyerData, name: v })} placeholder="John Doe" />
                                             <InputField label="Email Address" type="email" value={buyerData.email} onChange={(v) => setBuyerData({ ...buyerData, email: v })} placeholder="john@example.com" />
+                                            <InputField label="Contact Number" value={buyerData.phone} onChange={(v) => setBuyerData({ ...buyerData, phone: v })} placeholder="9876543210" />
+                                            <InputField label="City" value={buyerData.city} onChange={(v) => setBuyerData({ ...buyerData, city: v })} placeholder="City" />
                                             <InputField label="Password" type="password" value={buyerData.password} onChange={(v) => setBuyerData({ ...buyerData, password: v })} placeholder="Create a password" />
                                         </>
                                     ) : (

@@ -13,29 +13,39 @@ const MaterialDetail = ({ material, onBack, user, sellerStats, onCreateTransacti
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmitRequest = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    
-    // Create actual transaction
-    onCreateTransaction(material, reqData);
+        e.preventDefault();
+        setSubmitted(true);
 
-    setTimeout(() => {
-        setSubmitted(false);
-        setRequestModalOpen(false);
-        toast({ title: "Request Sent", description: "You can track this in 'My Deals' on your dashboard." });
-        onBack(); // Redirect to dashboard
-    }, 1500);
+        // Create actual transaction and await backend response before closing UI
+        (async () => {
+            try {
+                await onCreateTransaction(material, reqData);
+                toast({ title: "Request Sent", description: "You can track this in 'My Deals' on your dashboard." });
+                setRequestModalOpen(false);
+                onBack(); // Redirect to dashboard
+            } catch (err) {
+                console.error('Request creation failed', err);
+                toast({ title: "Error", description: err?.message || 'Failed to send request', variant: 'destructive' });
+            } finally {
+                setSubmitted(false);
+            }
+        })();
   };
 
-  const handleFeedbackSubmit = (feedbackData) => {
-      onAddFeedback({
-          sellerName: material.seller,
-          buyerName: user?.name || 'Anonymous',
-          materialName: material.name,
-          stage: 'General', // General feedback from detail page
-          ...feedbackData
-      });
-      toast({ title: "Feedback Submitted", description: "Thank you for rating this seller!" });
+  const handleFeedbackSubmit = async (feedbackData) => {
+      try {
+        await onAddFeedback({
+            requestId: material.requestId,
+            sellerName: material.seller,
+            buyerName: user?.name || 'Anonymous',
+            materialName: material.name,
+            stage: 'General',
+            ...feedbackData
+        });
+        setFeedbackModalOpen(false);
+      } catch (err) {
+        console.error('Feedback submission failed:', err);
+      }
   };
 
   const getBadgeColor = (type) => {

@@ -73,6 +73,37 @@ async def get_requests_for_material(db: AsyncSession, material_id: int, org_id: 
     result = await db.execute(stmt)
     return result.scalars().all()
 
+
+async def get_requests_for_organization(db: AsyncSession, org_id: int):
+    # Fetch requests joined to materials that belong to this organization
+    stmt = (
+        select(Request)
+        .join(Material, Request.material_id == Material.material_id)
+        .options(selectinload(Request.buyer), selectinload(Request.material))
+        .where(Material.org_id == org_id)
+        .order_by(Request.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    requests = result.scalars().all()
+
+    # Map to dictionary-like objects that frontend can easily consume
+    mapped = []
+    for r in requests:
+        mapped.append({
+            "request_id": r.request_id,
+            "material_id": r.material_id,
+            "material_title": getattr(r.material, 'title', None),
+            "buyer_id": r.buyer_id,
+            "buyer_name": getattr(r.buyer, 'name', None),
+            "buyer_email": getattr(r.buyer, 'email', None),
+            "requested_quantity": r.requested_quantity,
+            "message": r.message,
+            "status": r.status,
+            "created_at": r.created_at
+        })
+
+    return mapped
+
 async def mark_transferred(db: AsyncSession, material_id: int, org_id: int):
     stmt = select(Material).where(Material.material_id == material_id, Material.org_id == org_id)
     result = await db.execute(stmt)
@@ -99,66 +130,62 @@ async def update_request_status(db: AsyncSession, request_id: int, org_id: int, 
     
     if not request:
         raise HTTPException(status_code=404, detail="Request not found or access denied")
-        
-    if status_update not in ["accepted", "rejected", "completed"]:
-         raise HTTPException(status_code=400, detail="Invalid status")
+    
+        # Prevent re-accepting or re-rejecting completed/rejected requests
+        if request.status in ["rejected", "completed"]:
+            raise HTTPException(status_code=400, detail=f"Cannot change status of a {request.status} request")
+    
+        if status_update not in ["accepted", "rejected", "completed"]:
+            raise HTTPException(status_code=400, detail="Invalid status")
 
-    # Seller Block Check (if accepting)
+        # Seller Block Check
     if status_update == "accepted":
         stmt_org = select(Organization).where(Organization.org_id == org_id)
         res_org = await db.execute(stmt_org)
         org = res_org.scalars().first()
         if not org or org.is_blocked:
-             raise HTTPException(status_code=403, detail="Blocked organization cannot accept requests")
+            raise HTTPException(status_code=403, detail="Blocked organization cannot accept requests")
 
-        # Check Material Availability (prevent double acceptance)
-        # request.material_id is available. We must fetch material status.
-        # We can use the already imported Material model logic or fetch.
-        material_check = await db.get(Material, request.material_id)
-        if not material_check:
-             raise HTTPException(status_code=404, detail="Material not found")
-        
-        if material_check.availability_status != 'available':
-             raise HTTPException(status_code=400, detail="Material is no longer available (already reserved or transferred)")
-
-    # State Machine Enforcement
-    current_status = request.status
-    
-    if current_status == "pending":
-        if status_update not in ["accepted", "rejected"]:
-            raise HTTPException(status_code=400, detail=f"Cannot transition from {current_status} to {status_update}")
-            
-    elif current_status == "accepted":
-        if status_update != "completed":
-            raise HTTPException(status_code=400, detail=f"Cannot transition from {current_status} to {status_update}")
-            
-    elif current_status in ["rejected", "completed"]:
-        raise HTTPException(status_code=400, detail=f"Cannot change status of a {current_status} request")
-
-    request.status = status_update
-    
-    # Side Effect: Update Material Logic
-    if status_update == "accepted":
-        # Lock the material (Reserved)
-        # We need to fetch material object or update via relationship if eager loaded.
-        # request joins material in query but not selectinload.
-        # Efficient update:
+        # Fetch material with available quantity check
         material = await db.get(Material, request.material_id)
-        if material:
-            material.availability_status = "reserved"
-            db.add(material)
-            
+        if not material:
+            raise HTTPException(status_code=404, detail="Material not found")
+        
+        if material.availability_status not in ['available', 'partially_allocated']:
+            raise HTTPException(status_code=400, detail="Material is no longer available (exhausted or transferred)")
+        
+        # Initialize available_quantity if not set
+        if material.available_quantity is None:
+            material.available_quantity = material.quantity_value
+        
+        # Check if sufficient quantity
+        if material.available_quantity < request.requested_quantity:
+            raise HTTPException(status_code=400, detail=f"Insufficient quantity. Available: {material.available_quantity}, Requested: {request.requested_quantity}")
+        
+        # Deduct from available quantity
+        material.available_quantity -= request.requested_quantity
+        
+        # Update material status based on remaining quantity
+        if material.available_quantity == 0:
+            material.availability_status = 'exhausted'
+        else:
+            material.availability_status = 'partially_allocated'
+        
+        db.add(material)
+        logging.info(f"Accepted request {request_id}: deducted {request.requested_quantity}, remaining quantity: {material.available_quantity}")
+
+    elif status_update == "rejected":
+        logging.info(f"Rejected request {request_id}")
+    
     elif status_update == "completed":
-        # Mark as transferred
+        # Mark as transferred (only when delivery is confirmed)
         material = await db.get(Material, request.material_id)
         if material:
             material.availability_status = "transferred"
-            # Deduct quantity logic could go here if partials allowed, 
-            # but per current 'reserved' rule, we assume full lock.
-            # However, user mentioned "If quantity becomes 0 -> transferred".
-            # For simplicity and strictness now: completed = transferred.
             db.add(material)
+        logging.info(f"Completed request {request_id}")
 
+    request.status = status_update
     db.add(request)
     await db.commit()
     await db.refresh(request)
