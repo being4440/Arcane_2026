@@ -22,56 +22,61 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_session)
 ):
-    # Normalize form_data to Login schema
-    login_data = Login(email=form_data.username, password=form_data.password)
-    
-    user_data = await auth_service.authenticate_user(db, login_data)
-    if not user_data:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        # Normalize form_data to Login schema
+        login_data = Login(email=form_data.username, password=form_data.password)
+        
+        user_data = await auth_service.authenticate_user(db, login_data)
+        if not user_data:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+        access_token = security.create_access_token(
+            subject=user_data["id"],
+            role=user_data["role"]
         )
         
-    access_token = security.create_access_token(
-        subject=user_data["id"],
-        role=user_data["role"]
-    )
-    
-    # Construct user details based on role
-    user_obj = user_data["user"]
-    details = {}
-    if user_data["role"] == "buyer":
-        details = {
-            "name": user_obj.name,
-            "email": user_obj.email,
-            "city": user_obj.city,
-            "phone": user_obj.phone
-        }
-    elif user_data["role"] == "organization":
-        details = {
-            "organisationName": user_obj.org_name,
-            "orgType": user_obj.org_type,
-            "industryType": user_obj.industry_type,
-            "email": user_obj.email,
-            "city": "New Delhi" # Default for now if not in model, user_obj doesn't have city in Organization model? Check model.
-            # Checking auth_service.py create_organization: org_name, org_type, industry_type, email. No city.
-            # Frontend expects city. I will mock it or add it to model later if needed.
-        }
-    elif user_data["role"] == "admin":
-        details = {
-            "name": user_obj.name,
-            "email": user_obj.email,
-            "role": user_obj.role
-        }
+        # Construct user details based on role
+        user_obj = user_data["user"]
+        details = {}
+        if user_data["role"] == "buyer":
+            details = {
+                "name": user_obj.name,
+                "email": user_obj.email,
+                "city": user_obj.city,
+                "phone": user_obj.phone
+            }
+        elif user_data["role"] == "organization":
+            details = {
+                "organisationName": user_obj.org_name,
+                "orgType": user_obj.org_type,
+                "industryType": user_obj.industry_type,
+                "email": user_obj.email,
+                "city": "New Delhi" 
+            }
+        elif user_data["role"] == "admin":
+            details = {
+                "name": user_obj.name,
+                "email": user_obj.email,
+                "role": user_obj.role
+            }
 
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer",
-        "role": user_data["role"],
-        "user_id": user_data["id"],
-        "user_details": details
-    }
+        return {
+            "access_token": access_token, 
+            "token_type": "bearer",
+            "role": user_data["role"],
+            "user_id": user_data["id"],
+            "user_details": details
+        }
+    except Exception as e:
+        import traceback
+        with open("error_log.txt", "w") as f:
+            f.write(traceback.format_exc())
+        print("LOGIN ERROR TRACEBACK WRITTEN TO error_log.txt")
+        raise e
 
 @router.post("/signup/organization", response_model=OrganizationResponse)
 async def signup_organization(

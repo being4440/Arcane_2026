@@ -38,7 +38,7 @@ class MaterialResponse(MaterialBase):
     material_id: int
     org_id: int
     availability_status: str
-        available_quantity: Optional[Decimal] = None
+    available_quantity: Optional[Decimal] = None
     created_at: datetime
     photos: List[MaterialPhotoResponse] = []
     

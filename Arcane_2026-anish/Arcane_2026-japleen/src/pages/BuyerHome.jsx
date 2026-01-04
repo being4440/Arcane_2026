@@ -21,7 +21,8 @@ const BuyerHome = ({
     onNavigate,
     onLogout,
     onViewMaterial,
-    getSellerStats
+    getSellerStats,
+    onSearch
 }) => {
     const { toast } = useToast();
     const [activeTab, setActiveTab] = useState('browse'); // 'browse' | 'deals' | 'requests'
@@ -31,57 +32,30 @@ const BuyerHome = ({
     const [searchIndustry, setSearchIndustry] = useState('');
     const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-    const [searchResults, setSearchResults] = useState(null);
-    const [isSearching, setIsSearching] = useState(false);
+    const performSearch = () => {
+        const params = {};
+        if (filterCategory !== 'All') params.category = filterCategory;
+        if (searchTerm) params.q = searchTerm;
+        if (searchIndustry && searchIndustry !== 'All') params.industry = searchIndustry;
 
-    // Feedback specific state
-    const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
-    const [selectedTransactionForFeedback, setSelectedTransactionForFeedback] = useState(null);
-    const [feedbackStage, setFeedbackStage] = useState(''); // 'During Deal' or 'Post-Delivery'
-
-    const categories = ['All', 'Wood', 'Metal', 'Ceramic', 'Concrete', 'Glass', 'Plastic', 'Others'];
-    const industries = ['All', 'Construction', 'Manufacturing', 'Retail', 'Hospitality', 'Healthcare', 'Education'];
-
-    // Debounced search handler
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (activeTab === 'browse' && (searchTerm || searchIndustry)) {
-                performSearch();
-            } else if (!searchTerm && !searchIndustry) {
-                setSearchResults(null);
-            }
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [searchTerm, searchIndustry]);
-
-    const performSearch = async () => {
-        try {
-            setIsSearching(true);
-            const params = {};
-            if (filterCategory !== 'All') params.category = filterCategory;
-            if (searchTerm) params.q = searchTerm;
-            if (searchIndustry && searchIndustry !== 'All') params.industry = searchIndustry;
-
-            const results = await api.getMaterials(params);
-            setSearchResults(results);
-        } catch (error) {
-            console.error('Search failed:', error);
-            toast({
-                title: 'Search Error',
-                description: 'Failed to search materials',
-                variant: 'destructive'
-            });
-        } finally {
-            setIsSearching(false);
+        if (onSearch) {
+            onSearch(params);
         }
     };
 
-    // Updated Filter Logic
-    const displayMaterials = searchResults !== null ? searchResults : (materials || []).filter(material => {
-        const matchesCategory = filterCategory === 'All' || material.category === filterCategory;
-        return matchesCategory;
-    });
+    // Trigger search when filters change
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (activeTab === 'browse') {
+                performSearch();
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm, searchIndustry, filterCategory]);
+
+    // Use materials prop directly
+    const displayMaterials = materials;
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -276,8 +250,8 @@ const BuyerHome = ({
                                             key={cat}
                                             onClick={() => setFilterCategory(cat)}
                                             className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${filterCategory === cat
-                                                    ? 'bg-[#60A5FA] text-white'
-                                                    : 'bg-[#1E2A26] text-gray-400 hover:text-white border border-gray-700'
+                                                ? 'bg-[#60A5FA] text-white'
+                                                : 'bg-[#1E2A26] text-gray-400 hover:text-white border border-gray-700'
                                                 }`}
                                         >
                                             {cat}
@@ -347,8 +321,8 @@ const BuyerHome = ({
                                             <div className="flex justify-between items-start mb-2">
                                                 <h3 className="text-xl font-bold text-white">{deal.materialName}</h3>
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${deal.status === 'Completed' ? 'bg-green-500/20 text-green-500' :
-                                                        deal.status === 'In Progress' ? 'bg-blue-500/20 text-blue-500' :
-                                                            'bg-yellow-500/20 text-yellow-500'
+                                                    deal.status === 'In Progress' ? 'bg-blue-500/20 text-blue-500' :
+                                                        'bg-yellow-500/20 text-yellow-500'
                                                     }`}>
                                                     {deal.status}
                                                 </span>
@@ -436,8 +410,8 @@ const BuyerHome = ({
                                         </div>
                                         <div className="flex flex-col justify-between items-end min-w-[150px]">
                                             <div className={`px-3 py-1 rounded text-xs font-medium border ${req.urgency === 'Critical' ? 'border-red-500 text-red-500 bg-red-500/10' :
-                                                    req.urgency === 'Urgent' ? 'border-orange-500 text-orange-500 bg-orange-500/10' :
-                                                        'border-gray-600 text-gray-400'
+                                                req.urgency === 'Urgent' ? 'border-orange-500 text-orange-500 bg-orange-500/10' :
+                                                    'border-gray-600 text-gray-400'
                                                 }`}>
                                                 {req.urgency} Priority
                                             </div>

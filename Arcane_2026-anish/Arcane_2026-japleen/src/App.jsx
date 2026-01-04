@@ -62,10 +62,10 @@ function App() {
     fetchMaterials();
   }, []);
 
-  const fetchMaterials = async () => {
+  const fetchMaterials = async (params = {}) => {
     try {
       setLoading(true);
-      const data = await api.getMaterials();
+      const data = await api.getMaterials(params);
       // Map backend data to frontend model
       const mapped = data.map(m => ({
         id: m.material_id,
@@ -142,13 +142,13 @@ function App() {
       toast({ title: "Error", description: "Request ID not found", variant: "destructive" });
       return;
     }
-    
+
     try {
       const resp = await api.createFeedback(feedbackData.requestId, {
         rating: feedbackData.rating,
         comment: feedbackData.comment
       });
-      
+
       const newFeedback = {
         id: resp.feedback_id,
         materialName: feedbackData.materialName,
@@ -158,7 +158,7 @@ function App() {
         date: new Date(resp.created_at).toLocaleDateString(),
         requestId: resp.request_id
       };
-      
+
       setFeedbacks([newFeedback, ...feedbacks]);
       toast({ title: "Feedback Submitted", description: "Thank you for your feedback!" });
     } catch (error) {
@@ -350,6 +350,7 @@ function App() {
             onLogout={handleLogout}
             onViewMaterial={handleViewMaterial}
             getSellerStats={getSellerStats}
+            onSearch={fetchMaterials}
           />
         )}
 

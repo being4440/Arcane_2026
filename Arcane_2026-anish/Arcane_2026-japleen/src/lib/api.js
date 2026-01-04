@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const getHeaders = () => {
     const token = localStorage.getItem('token');
@@ -42,7 +42,7 @@ export const api = {
         });
         if (!response.ok) {
             let err = { detail: 'Signup failed' };
-            try { err = await response.json(); } catch(e){}
+            try { err = await response.json(); } catch (e) { }
             throw new Error(err.detail || err.message || 'Signup failed');
         }
         return response.json();
@@ -56,7 +56,7 @@ export const api = {
         });
         if (!response.ok) {
             let err = { detail: 'Signup failed' };
-            try { err = await response.json(); } catch(e){}
+            try { err = await response.json(); } catch (e) { }
             throw new Error(err.detail || err.message || 'Signup failed');
         }
         return response.json();
@@ -69,7 +69,7 @@ export const api = {
         });
         if (!response.ok) {
             let err = { detail: 'Failed to fetch profile' };
-            try { err = await response.json(); } catch(e){}
+            try { err = await response.json(); } catch (e) { }
             throw new Error(err.detail || err.message || 'Failed to fetch profile');
         }
         return response.json();
@@ -83,7 +83,7 @@ export const api = {
         });
         if (!response.ok) {
             let err = { detail: 'Failed to update profile' };
-            try { err = await response.json(); } catch(e){}
+            try { err = await response.json(); } catch (e) { }
             throw new Error(err.detail || err.message || 'Failed to update profile');
         }
         return response.json();
@@ -98,10 +98,10 @@ export const api = {
         if (params.industry) queryParams.append('industry', params.industry);
         if (params.skip) queryParams.append('skip', params.skip);
         if (params.limit) queryParams.append('limit', params.limit);
-        
+
         const queryString = queryParams.toString();
         const url = queryString ? `${API_URL}/materials/?${queryString}` : `${API_URL}/materials/`;
-        
+
         const response = await fetch(url, {
             headers: getHeaders()
         });
