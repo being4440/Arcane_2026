@@ -1,55 +1,86 @@
-# UpCycle Connect ♻️
+# ♻️ UpCycle Connect  
+### Original Solution (Planned Full Web Application)
 
-## Problem Statement
-Every year, industrial units and academic laboratories discard large amounts of reusable materials such as metal scraps, containers, timber offcuts, and electronic components.  
-Most of this waste ends up in landfills not because it lacks value, but because there is no simple, trusted system to redistribute it locally.
+UpCycle Connect is a **hyper-local digital marketplace** designed to enable the reuse of **industrial and laboratory surplus materials**, connecting suppliers with students, innovators, and recycling startups to promote sustainability and circular economy practices.
 
-This results in:
-- Increased environmental pollution
-- Wastage of usable resources
-- Limited access to affordable materials for students and innovators
-
----
-
-## Our Solution
-**UpCycle Connect** is a hyper-local digital marketplace designed to enable the reuse of industrial and laboratory surplus materials.
-
-The platform connects **industries and labs** that generate surplus materials with **students, innovators, and recycling startups**, allowing materials to be reused safely and sustainably.  
-By promoting local redistribution, UpCycle Connect reduces environmental impact while encouraging innovation and circular economy practices.
+> ⚠️ **Important Note**  
+> This repository represents the **original and complete solution vision** for UpCycle Connect.  
+> While the current implementation covers core backend functionality, **not all planned features are fully implemented yet**.  
+> This README documents the **intended full-scale web application** as designed for the hackathon.
 
 ---
 
-## Platform Overview
-UpCycle Connect is built around **two primary user roles**:
+## 🎥 Demo Video
 
-### 🔹 Suppliers
-- Industrial units
-- Academic laboratories
+**Demo Link:**  
+https://drive.google.com/file/d/1mD7OcFXznwgcqhHbgleags09Acj5H7CC/view?usp=drivesdk
 
-### 🔹 Requesters
-- Students
-- Innovators
-- Recycling startups
+---
+## 📌 Problem Statement
 
-The system ensures transparency, structured listings, and easy discovery of surplus materials within a local radius.
+Every year, **industrial units and academic laboratories discard large volumes of reusable materials**, such as:
+
+- Metal scraps  
+- Electronic components  
+- Containers and lab equipment  
+- Timber and fabrication offcuts  
+
+Most of this waste ends up in landfills **not because it lacks value**, but because there is **no simple, trusted, and local system** to redistribute it.
+
+### Key Challenges
+- Environmental pollution due to unnecessary disposal  
+- Wastage of reusable materials  
+- High cost and limited access to resources for students and innovators  
+- Lack of structured, transparent redistribution platforms  
 
 ---
 
-## Core Features
+## 💡 Our Original Solution Vision
+
+**UpCycle Connect** is envisioned as a **hyper-local surplus material exchange platform** that connects:
+
+- **Industries & academic laboratories** generating surplus materials  
+- **Students, innovators, and recycling startups** who can reuse them  
+
+The platform focuses on **local discovery, structured listings, and direct requests**, ensuring materials are reused **safely, efficiently, and responsibly**.
+
+This approach supports sustainability while encouraging innovation and responsible resource utilization.
+
+---
+
+## 🧭 Platform Overview (Planned)
+
+The system is designed around **two primary user roles**:
+
+### 🔹 Suppliers (Sellers)
+- Industrial units  
+- Academic laboratories  
+
+### 🔹 Requesters (Buyers)
+- Students  
+- Innovators  
+- Recycling & sustainability startups  
+
+The platform emphasizes **transparency, traceability, and locality**, rather than global resale.
+
+---
+
+## ✨ Core Features (Planned Full Scope)
 
 ### 🧑‍🏭 Supplier (Seller) Features
-- Add surplus materials using **Add New Surplus Material**
-- Provide structured details including:
+- Add surplus materials via **Add New Surplus Material**
+- Provide structured material details:
   - Material category
   - Quantity
   - Condition
   - Availability type (Sell / Rent / Exchange)
 - Upload images for better material visibility
-- Manage and update listed surplus materials
+- Edit, update, or remove listed materials
+- Manage and track surplus inventory
 
 ---
 
-### 🧑‍🎓 Buyer / Requester Features
+### 🧑‍🎓 Requester (Buyer) Features
 - Browse surplus materials available nearby
 - Filter materials based on:
   - Category
@@ -57,26 +88,61 @@ The system ensures transparency, structured listings, and easy discovery of surp
   - Location
 - View detailed listings with condition and quantity
 - Request materials directly from suppliers
-- Enable reuse for academic projects, innovation, or recycling purposes
+- Reuse materials for:
+  - Academic projects
+  - Prototyping and innovation
+  - Recycling initiatives
 
 ---
 
-## Sustainability Impact
-- Reduces landfill waste
-- Encourages reuse of industrial and lab materials
-- Supports affordable access to resources for students and innovators
-- Promotes a circular economy model
+## 🧩 User Flow (Planned)
+
+> ![USERFLOW_diagram](upcycle-workflow.svg)
+
+## 🛠️ Tech Stack
+
+### Backend
+- Python  
+- FastAPI – RESTful API framework  
+- SQLite – Lightweight database (`arcane.db`)  
+- SQLAlchemy (ORM)  
+- Pydantic – Data validation  
+
+### Architecture
+- `models/` – Database models  
+- `routes/` – API endpoints  
+- `core/` – Configuration & utilities  
+- `db/` – Database initialization and logic  
 
 ---
 
-## Team Members
-- **Shruti Awasthi** – [@your-github-id](https://github.com/being4440)
-- **Anish Deodhar** – [@github-id](https://github.com/Anish-505)
-- **Japleen Kaur Arora** – [@github-id](https://github.com/2024japleenarora)
-- **Vamika Kaushik** – [@github-id](https://github.com/Vamikakaushik)
-
+## 🌱 Sustainability Impact
+- Reduces landfill waste  
+- Encourages reuse of industrial and lab materials  
+- Enables affordable access to resources for students and innovators  
+- Promotes circular economy principles  
+- Supports local sustainability initiatives  
 
 ---
 
-## Hackathon Note
-UpCycle Connect was developed as part of a hackathon to address real-world sustainability challenges by enabling efficient reuse of surplus industrial and laboratory materials through a digital, hyper-local platform.
+## 👥 Team Members
+- Shruti Awasthi  : https://github.com/being4440
+- Anish Deodhar  : https://github.com/Anish-505
+- Japleen Kaur Arora  : https://github.com/2024japleenarora
+- Vamika Kaushik  : https://github.com/Vamikakaushik
+
+---
+
+## 🏁 Hackathon Note
+
+UpCycle Connect was developed as part of a hackathon focused on addressing real-world sustainability challenges through a **practical, scalable, and impact-driven solution**.
+
+---
+
+## 🚀 Future Enhancements
+- Role-based authentication  
+- Location-based discovery using maps  
+- Request approval & tracking workflow  
+- Impact analytics dashboard  
+- Cloud deployment (Docker / Railway / Render)  
+
