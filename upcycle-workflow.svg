@@ -1,0 +1,224 @@
+<svg viewBox="0 0 1200 1600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Black Background -->
+  <rect width="1200" height="1600" fill="#000000"/>
+  
+  <!-- Title -->
+  <text x="600" y="60" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#10B981" text-anchor="middle">
+    UPCYCLE CONNECT
+  </text>
+  <text x="600" y="100" font-family="Arial, sans-serif" font-size="28" fill="#6EE7B7" text-anchor="middle">
+    Waste to Resource Coordination System
+  </text>
+  
+  <!-- User Type Labels -->
+  <text x="200" y="180" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FBBF24" text-anchor="middle">
+    SUPPLIER
+  </text>
+  <text x="600" y="180" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#10B981" text-anchor="middle">
+    ADMIN
+  </text>
+  <text x="1000" y="180" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#3B82F6" text-anchor="middle">
+    REQUESTER
+  </text>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowYellow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#FBBF24" />
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#10B981" />
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3B82F6" />
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#F59E0B" />
+    </marker>
+  </defs>
+  
+  <!-- Supplier Column -->
+  <!-- Start -->
+  <rect x="100" y="220" width="200" height="60" rx="30" fill="#FBBF24"/>
+  <text x="200" y="255" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#000" text-anchor="middle">START</text>
+  
+  <!-- Arrow -->
+  <path d="M 200 280 L 200 320" stroke="#FBBF24" stroke-width="3" fill="none" marker-end="url(#arrowYellow)"/>
+  
+  <!-- Supplier Login -->
+  <rect x="100" y="320" width="200" height="70" rx="8" fill="#451A03" stroke="#FBBF24" stroke-width="2"/>
+  <text x="200" y="350" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FBBF24" text-anchor="middle">Supplier Login</text>
+  <text x="200" y="370" font-family="Arial, sans-serif" font-size="13" fill="#FDE68A" text-anchor="middle">(Lab Admin/Industry)</text>
+  
+  <!-- Arrow -->
+  <path d="M 200 390 L 200 430" stroke="#FBBF24" stroke-width="3" fill="none" marker-end="url(#arrowYellow)"/>
+  
+  <!-- List Material -->
+  <rect x="100" y="430" width="200" height="100" rx="8" fill="#451A03" stroke="#FBBF24" stroke-width="2"/>
+  <text x="200" y="455" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FBBF24" text-anchor="middle">List Material</text>
+  <text x="200" y="475" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="middle">Select category</text>
+  <text x="200" y="492" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="middle">Upload photos</text>
+  <text x="200" y="509" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="middle">Set pickup location</text>
+  <text x="200" y="526" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="middle">Add quantity and details</text>
+  
+  <!-- Arrow to Database -->
+  <path d="M 300 480 L 450 480" stroke="#FBBF24" stroke-width="3" fill="none" marker-end="url(#arrowYellow)"/>
+  
+  <!-- Arrow down from supplier -->
+  <path d="M 200 530 L 200 620" stroke="#FBBF24" stroke-width="3" stroke-dasharray="5,5" fill="none"/>
+  
+  <!-- Supplier Dashboard Box -->
+  <rect x="80" y="620" width="240" height="140" rx="8" fill="#78350F" stroke="#FBBF24" stroke-width="3"/>
+  <text x="200" y="645" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#FBBF24" text-anchor="middle">SUPPLIER DASHBOARD</text>
+  <text x="200" y="670" font-family="Arial, sans-serif" font-size="13" fill="#FDE68A" text-anchor="middle">My Active Listings</text>
+  <text x="200" y="690" font-family="Arial, sans-serif" font-size="13" fill="#FDE68A" text-anchor="middle">Pending Requests</text>
+  <text x="200" y="710" font-family="Arial, sans-serif" font-size="13" fill="#FDE68A" text-anchor="middle">Materials Reused: 8</text>
+  <text x="200" y="730" font-family="Arial, sans-serif" font-size="13" fill="#FDE68A" text-anchor="middle">CO2 Saved: 245kg</text>
+  <text x="200" y="750" font-family="Arial, sans-serif" font-size="13" fill="#FDE68A" text-anchor="middle">Pickup confirmations</text>
+  
+  <!-- Admin Column -->
+  <!-- Database Pending -->
+  <ellipse cx="600" cy="480" rx="100" ry="50" fill="#1E293B" stroke="#10B981" stroke-width="3"/>
+  <text x="600" y="475" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">Database</text>
+  <text x="600" y="495" font-family="Arial, sans-serif" font-size="14" fill="#6EE7B7" text-anchor="middle">(Pending)</text>
+  
+  <!-- Arrow -->
+  <path d="M 600 530 L 600 580" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Admin View Requests -->
+  <rect x="500" y="580" width="200" height="70" rx="8" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+  <text x="600" y="610" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">View Requests</text>
+  <text x="600" y="630" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">Review material</text>
+  <text x="600" y="645" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">submissions</text>
+  
+  <!-- Arrow -->
+  <path d="M 600 650 L 600 700" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Approve & Categorize -->
+  <rect x="500" y="700" width="200" height="85" rx="8" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+  <text x="600" y="725" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">Approve and Categorize</text>
+  <text x="600" y="745" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Verify photos</text>
+  <text x="600" y="762" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Confirm category</text>
+  <text x="600" y="779" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Calculate CO2 impact</text>
+  
+  <!-- Arrow -->
+  <path d="M 600 785 L 600 835" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Material Approved -->
+  <ellipse cx="600" cy="865" rx="100" ry="35" fill="#1E293B" stroke="#10B981" stroke-width="3"/>
+  <text x="600" y="870" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#10B981" text-anchor="middle">Material Approved</text>
+  
+  <!-- Arrow to Requester -->
+  <path d="M 700 865 L 850 865" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Arrow down for admin requests -->
+  <path d="M 600 900 L 600 980" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Review Requester -->
+  <rect x="500" y="980" width="200" height="70" rx="8" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+  <text x="600" y="1010" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">Review Requests</text>
+  <text x="600" y="1030" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">Validate requester</text>
+  <text x="600" y="1045" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">and purpose</text>
+  
+  <!-- Arrow -->
+  <path d="M 600 1050 L 600 1100" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Allocate Material -->
+  <rect x="500" y="1100" width="200" height="85" rx="8" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+  <text x="600" y="1125" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">Allocate Material</text>
+  <text x="600" y="1145" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Share location</text>
+  <text x="600" y="1162" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Connect parties</text>
+  <text x="600" y="1179" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Update status</text>
+  
+  <!-- Arrow -->
+  <path d="M 600 1185 L 600 1235" stroke="#10B981" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Pickup Completed -->
+  <ellipse cx="600" cy="1265" rx="100" ry="35" fill="#1E293B" stroke="#F59E0B" stroke-width="3"/>
+  <text x="600" y="1270" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#F59E0B" text-anchor="middle">Pickup Completed</text>
+  
+  <!-- Arrow -->
+  <path d="M 600 1300 L 600 1350" stroke="#F59E0B" stroke-width="3" fill="none" marker-end="url(#arrowOrange)"/>
+  
+  <!-- Update Analytics -->
+  <ellipse cx="600" cy="1380" rx="110" ry="35" fill="#1E293B" stroke="#F59E0B" stroke-width="3"/>
+  <text x="600" y="1385" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#F59E0B" text-anchor="middle">Update Impact Metrics</text>
+  
+  <!-- Admin Dashboard Box -->
+  <rect x="380" y="1430" width="440" height="150" rx="8" fill="#064E3B" stroke="#10B981" stroke-width="3"/>
+  <text x="600" y="1455" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#10B981" text-anchor="middle">ADMIN DASHBOARD</text>
+  <text x="600" y="1480" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">Pending Approvals | Pending Requests | Material Map</text>
+  <text x="600" y="1505" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FBBF24" text-anchor="middle">IMPACT ANALYTICS:</text>
+  <text x="600" y="1525" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">Materials Diverted: 1247kg | CO2 Saved: 4523kg</text>
+  <text x="600" y="1545" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">Category Breakdown | Monthly Trends | Top Contributors</text>
+  <text x="600" y="1565" font-family="Arial, sans-serif" font-size="13" fill="#6EE7B7" text-anchor="middle">Success Rate: 87%</text>
+  
+  <!-- Requester Column -->
+  <!-- Browse Materials -->
+  <rect x="900" y="865" width="200" height="85" rx="8" fill="#1E3A8A" stroke="#3B82F6" stroke-width="2"/>
+  <text x="1000" y="890" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#3B82F6" text-anchor="middle">Browse Materials</text>
+  <text x="1000" y="910" font-family="Arial, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">Map view with pins</text>
+  <text x="1000" y="927" font-family="Arial, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">List view + filters</text>
+  <text x="1000" y="944" font-family="Arial, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">Distance shown</text>
+  
+  <!-- Arrow -->
+  <path d="M 1000 950 L 1000 1000" stroke="#3B82F6" stroke-width="3" fill="none" marker-end="url(#arrowBlue)"/>
+  
+  <!-- Submit Request -->
+  <rect x="900" y="1000" width="200" height="85" rx="8" fill="#1E3A8A" stroke="#3B82F6" stroke-width="2"/>
+  <text x="1000" y="1025" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#3B82F6" text-anchor="middle">Submit Request</text>
+  <text x="1000" y="1045" font-family="Arial, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">State purpose</text>
+  <text x="1000" y="1062" font-family="Arial, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">Quantity needed</text>
+  <text x="1000" y="1079" font-family="Arial, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">Pickup timeframe</text>
+  
+  <!-- Arrow to Admin -->
+  <path d="M 900 1042 L 700 1042" stroke="#3B82F6" stroke-width="3" fill="none" marker-end="url(#arrowBlue)"/>
+  
+  <!-- Arrow down -->
+  <path d="M 1000 1085 L 1000 1135" stroke="#3B82F6" stroke-width="3" fill="none" marker-end="url(#arrowBlue)"/>
+  
+  <!-- Request Approved -->
+  <rect x="900" y="1135" width="200" height="70" rx="8" fill="#1E3A8A" stroke="#10B981" stroke-width="2"/>
+  <text x="1000" y="1165" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">Request Approved</text>
+  <text x="1000" y="1185" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">Location revealed</text>
+  <text x="1000" y="1200" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">Contact shared</text>
+  
+  <!-- Arrow -->
+  <path d="M 1000 1205 L 1000 1255" stroke="#3B82F6" stroke-width="3" fill="none" marker-end="url(#arrowBlue)"/>
+  
+  <!-- Pickup Material -->
+  <rect x="900" y="1255" width="200" height="60" rx="8" fill="#1E3A8A" stroke="#F59E0B" stroke-width="2"/>
+  <text x="1000" y="1280" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#F59E0B" text-anchor="middle">Pickup Material</text>
+  <text x="1000" y="1300" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">Visit supplier location</text>
+  
+  <!-- Arrow to completion -->
+  <path d="M 900 1285 L 700 1285" stroke="#F59E0B" stroke-width="3" fill="none" marker-end="url(#arrowOrange)"/>
+  
+  <!-- Requester Dashboard Box -->
+  <rect x="880" y="1350" width="240" height="140" rx="8" fill="#1E3A8A" stroke="#3B82F6" stroke-width="3"/>
+  <text x="1000" y="1375" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#3B82F6" text-anchor="middle">REQUESTER DASHBOARD</text>
+  <text x="1000" y="1400" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">Browse Map/List View</text>
+  <text x="1000" y="1420" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">My Requests Status</text>
+  <text x="1000" y="1440" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">Materials Received: 6</text>
+  <text x="1000" y="1460" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">My CO2 Impact: 87kg</text>
+  <text x="1000" y="1480" font-family="Arial, sans-serif" font-size="13" fill="#93C5FD" text-anchor="middle">Pickup locations</text>
+  
+  <!-- Category Legend -->
+  <rect x="50" y="820" width="280" height="220" rx="8" fill="#1F2937" stroke="#FBBF24" stroke-width="2"/>
+  <text x="190" y="845" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FBBF24" text-anchor="middle">6 WASTE CATEGORIES</text>
+  <text x="60" y="870" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="start">1. Melt and Recast (Al, Cu, Steel)</text>
+  <text x="60" y="895" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="start">2. Refurbishable Tools</text>
+  <text x="60" y="920" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="start">3. Reusable Containers</text>
+  <text x="60" y="945" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="start">4. Electronic Components</text>
+  <text x="60" y="970" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="start">5. Timber/Acrylic/Structural</text>
+  <text x="60" y="995" font-family="Arial, sans-serif" font-size="12" fill="#FDE68A" text-anchor="start">6. Non-Reusable (Tracked only)</text>
+  <text x="190" y="1020" font-family="Arial, sans-serif" font-size="11" font-style="italic" fill="#D97706" text-anchor="middle">Auto-calculated CO2 impact</text>
+  
+  <!-- Key Feature Highlight -->
+  <rect x="50" y="1080" width="280" height="120" rx="8" fill="#1F2937" stroke="#10B981" stroke-width="2"/>
+  <text x="190" y="1105" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#10B981" text-anchor="middle">LOCATION PRIVACY</text>
+  <text x="190" y="1130" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">Before approval:</text>
+  <text x="190" y="1147" font-family="Arial, sans-serif" font-size="11" fill="#93C5FD" text-anchor="middle">"2.3 km away" (fuzzy)</text>
+  <text x="190" y="1170" font-family="Arial, sans-serif" font-size="12" fill="#6EE7B7" text-anchor="middle">After approval:</text>
+  <text x="190" y="1187" font-family="Arial, sans-serif" font-size="11" fill="#93C5FD" text-anchor="middle">Exact address revealed</text>
+</svg>
